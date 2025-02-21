@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Work Tracker</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Work Tracker</h1>
+            <div id="total-time"></div>
+            <div id="time-from-last-paycheck"></div>
+            <div id="day-list"></div>
+            <div id="add-day">
+                <div class="date-inputs">
+                    <input
+                        type="number"
+                        id="day"
+                        placeholder="Day"
+                        min="1"
+                        max="31"
+                    />
+                    <input
+                        type="number"
+                        id="month"
+                        placeholder="Month"
+                        min="1"
+                        max="12"
+                    />
+                    <input
+                        type="number"
+                        id="year"
+                        placeholder="Year"
+                        min="2020"
+                        max="2099"
+                    />
+                    <div class="time-inputs">
+                        <div class="time-range-input">
+                            <div class="time-pair">
+                                <input type="time" id="start-time" />
+                                <span>to</span>
+                                <input type="time" id="end-time" />
+                            </div>
+                            <button id="add-range">
+                                <img src="add.svg" />Add Range
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="ranges-list"></div>
+                </div>
+                <div class="row">
+                    <button id="add-day-button">
+                        <img src="add.svg" />Add
+                    </button>
+                </div>
+            </div>
+            <div id="add-paycheck">
+                <div class="date-inputs">
+                    <input
+                        type="number"
+                        id="paycheck-day"
+                        placeholder="Day"
+                        min="1"
+                        max="31"
+                    />
+                    <input
+                        type="number"
+                        id="paycheck-month"
+                        placeholder="Month"
+                        min="1"
+                        max="12"
+                    />
+                    <input
+                        type="number"
+                        id="paycheck-year"
+                        placeholder="Year"
+                        min="2020"
+                        max="2099"
+                    />
+                </div>
+                <button id="add-paycheck-button">
+                    <img src="add.svg" />Add paycheck
+                </button>
+            </div>
+        </div>
+
+        <div id="darkMode">
+            <input type="checkbox" id="dark-mode-toggle" />
+            <b>Dark Mode</b>
+        </div>
+    </body>
+    <script src="script.js"></script>
+</html>
