@@ -1,4 +1,3 @@
-// Dark mode functionality
 const darkModeToggle = document.querySelector("#dark-mode-toggle");
 const body = document.body;
 
@@ -12,7 +11,6 @@ function toggleDarkMode(event) {
     }
 }
 
-// Initialize dark mode
 const darkMode = localStorage.getItem("darkMode");
 if (darkMode === "enabled") {
     body.classList.add("dark-mode");
@@ -21,11 +19,9 @@ if (darkMode === "enabled") {
 
 darkModeToggle.addEventListener("change", toggleDarkMode);
 
-// Work tracker functionality
 let workDays = JSON.parse(localStorage.getItem("workDays")) || [];
 let paychecks = JSON.parse(localStorage.getItem("paychecks")) || [];
 
-// DOM elements
 const dateInput = document.querySelector("#date");
 const hoursInput = document.querySelector("#hours");
 const minutesInput = document.querySelector("#minutes");
@@ -36,10 +32,8 @@ const dayList = document.querySelector("#day-list");
 const totalTimeElement = document.querySelector("#total-time");
 const timeFromLastPaycheck = document.querySelector("#time-from-last-paycheck");
 
-// Add timeRangesInput to DOM elements
 const timeRangesInput = document.querySelector("#time-ranges");
 
-// Update DOM elements
 const dayInput = document.querySelector("#day");
 const monthInput = document.querySelector("#month");
 const yearInput = document.querySelector("#year");
@@ -47,15 +41,16 @@ const paycheckDayInput = document.querySelector("#paycheck-day");
 const paycheckMonthInput = document.querySelector("#paycheck-month");
 const paycheckYearInput = document.querySelector("#paycheck-year");
 
-// New DOM elements for time range input system
-const startTimeInput = document.querySelector("#start-time");
-const endTimeInput = document.querySelector("#end-time");
 const addRangeButton = document.querySelector("#add-range");
 const rangesList = document.querySelector("#ranges-list");
 
+const startHoursInput = document.querySelector("#start-hours");
+const startMinutesInput = document.querySelector("#start-minutes");
+const endHoursInput = document.querySelector("#end-hours");
+const endMinutesInput = document.querySelector("#end-minutes");
+
 let currentRanges = [];
 
-// Helper functions
 function formatTime(totalMinutes) {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -78,38 +73,40 @@ function calculateTimeFromLastPaycheck() {
     if (paychecks.length === 0) return calculateTotalTime(workDays);
 
     const lastPaycheck = new Date(paychecks[paychecks.length - 1]);
-    const relevantDays = workDays.filter(
-        (day) => new Date(day.date) > lastPaycheck
-    );
+    const relevantDays = workDays.filter((day) => {
+        const dayStart = new Date(day.date + "T00:00:00");
+        return dayStart > lastPaycheck;
+    });
     return calculateTotalTime(relevantDays);
 }
 
 function formatDisplayDate(dateString) {
-    // Convert from YYYY-MM-DD to DD-MM-YYYY
-    const [year, month, day] = dateString.split("-");
-    return `${day}-${month}-${year}`;
+    const [datePart, timePart] = dateString.split("T");
+    const [year, month, day] = datePart.split("-");
+    const timeStr = timePart ? ` ${timePart}` : "";
+    return `${day}-${month}-${year}${timeStr}`;
 }
 
 function calculateTimeForPeriod(startDate, endDate) {
-    const periodDays = workDays.filter(day => {
+    const periodDays = workDays.filter((day) => {
         const dayDate = new Date(day.date);
-        return (!startDate || dayDate > startDate) && (!endDate || dayDate <= endDate);
+        return (
+            (!startDate || dayDate > startDate) &&
+            (!endDate || dayDate <= endDate)
+        );
     });
     return calculateTotalTime(periodDays);
 }
 
 function updateDisplay() {
-    // Update total time
     const totalMinutes = calculateTotalTime(workDays);
     totalTimeElement.textContent = `Total Time: ${formatTime(totalMinutes)}`;
 
-    // Update time from last paycheck
     const minutesFromLastPaycheck = calculateTimeFromLastPaycheck();
-    timeFromLastPaycheck.textContent = `Time Since Last Paycheck: ${formatTime(
+    timeFromLastPaycheck.textContent = `Since Paycheck: ${formatTime(
         minutesFromLastPaycheck
     )}`;
 
-    // Update day list with paychecks as separators
     dayList.innerHTML = "";
     let sortedPaychecks = [...paychecks].sort();
     let lastPaycheckDate = null;
@@ -117,53 +114,90 @@ function updateDisplay() {
     workDays
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .forEach((day) => {
-            // Add paycheck separators before their respective days
-            while (sortedPaychecks.length > 0 && sortedPaychecks[0] <= day.date) {
-                const paycheckDate = sortedPaychecks.shift();
-                const periodMinutes = calculateTimeForPeriod(lastPaycheckDate, new Date(paycheckDate));
-                const separator = document.createElement("div");
-                separator.className = "paycheck-separator";
-                separator.innerHTML = `
-                    <span class="date">💰 Paycheck ${formatDisplayDate(paycheckDate)}</span>
-                    <span class="total">Period total: ${formatTime(periodMinutes)}</span>
-                `;
-                dayList.appendChild(separator);
-                lastPaycheckDate = new Date(paycheckDate);
-            }
-
-            // Add the work day
             const dayElement = document.createElement("div");
             const timeRangesHtml = day.timeRanges
                 ? `<span class="time-ranges-display">${day.timeRanges}</span>`
                 : "";
             dayElement.innerHTML = `
                 <span>
-                    ${formatDisplayDate(day.date)}: ${day.hours}h ${day.minutes}m
+                    ${formatDisplayDate(day.date)}: ${day.hours}h ${
+                day.minutes
+            }m
                     ${timeRangesHtml}
                 </span>
-                <button onclick="deleteDay('${day.date}')" class="delete-button">
+                <button onclick="deleteDay('${
+                    day.date
+                }')" class="delete-button">
                     <img src="delete.svg" alt="Delete" />
                 </button>
             `;
             dayList.appendChild(dayElement);
+
+            while (sortedPaychecks.length > 0) {
+                const paycheckDateTime = new Date(sortedPaychecks[0]);
+                const currentDayEnd = new Date(day.date + "T23:59:59");
+
+                if (paycheckDateTime > currentDayEnd) break;
+
+                const paycheckDate = sortedPaychecks.shift();
+                const periodMinutes = calculateTimeForPeriod(
+                    lastPaycheckDate,
+                    paycheckDateTime
+                );
+
+                const time = paycheckDate.split("T")[1];
+                const separator = document.createElement("div");
+                separator.className = "paycheck-separator";
+                separator.innerHTML = `
+                    <div class="info">
+                        <span class="date">💰 ${
+                            time === "23:00" ? "Night" : "Morning"
+                        } Paycheck ${formatDisplayDate(
+                    paycheckDate.split("T")[0]
+                )}</span>
+                        <span class="total">Period total: ${formatTime(
+                            periodMinutes
+                        )}</span>
+                    </div>
+                    <button onclick="deletePaycheck('${paycheckDate}')" class="delete-paycheck" title="Delete paycheck">
+                        <img src="delete.svg" alt="Delete" />
+                    </button>
+                `;
+                dayList.appendChild(separator);
+                lastPaycheckDate = paycheckDateTime;
+            }
         });
 
-    // Add final paycheck separator if any remaining
     while (sortedPaychecks.length > 0) {
         const paycheckDate = sortedPaychecks.shift();
-        const periodMinutes = calculateTimeForPeriod(lastPaycheckDate, new Date(paycheckDate));
+        const paycheckDateTime = new Date(paycheckDate);
+        const periodMinutes = calculateTimeForPeriod(
+            lastPaycheckDate,
+            paycheckDateTime
+        );
+        const time = paycheckDate.split("T")[1];
         const separator = document.createElement("div");
         separator.className = "paycheck-separator";
         separator.innerHTML = `
-            <span class="date">💰 Paycheck ${formatDisplayDate(paycheckDate)}</span>
-            <span class="total">Period total: ${formatTime(periodMinutes)}</span>
+            <div class="info">
+                <span class="date">💰 ${
+                    time === "23:00" ? "Night" : "Morning"
+                } Paycheck ${formatDisplayDate(
+            paycheckDate.split("T")[0]
+        )}</span>
+                <span class="total">Period total: ${formatTime(
+                    periodMinutes
+                )}</span>
+            </div>
+            <button onclick="deletePaycheck('${paycheckDate}')" class="delete-paycheck" title="Delete paycheck">
+                <img src="delete.svg" alt="Delete" />
+            </button>
         `;
         dayList.appendChild(separator);
-        lastPaycheckDate = new Date(paycheckDate);
+        lastPaycheckDate = paycheckDateTime;
     }
 }
 
-// Event handlers
 function calculateTimeFromRanges(timeRanges) {
     if (!timeRanges) return 0;
 
@@ -197,17 +231,24 @@ function calculateTimeFromRanges(timeRanges) {
 }
 
 function addTimeRange() {
-    const start = startTimeInput.value;
-    const end = endTimeInput.value;
+    const startHours = startHoursInput.value.padStart(2, "0");
+    const startMinutes = startMinutesInput.value.padStart(2, "0");
+    const endHours = endHoursInput.value.padStart(2, "0");
+    const endMinutes = endMinutesInput.value.padStart(2, "0");
 
-    if (!start || !end) return;
+    if (!startHours || !startMinutes || !endHours || !endMinutes) return;
+
+    const start = `${startHours}:${startMinutes}`;
+    const end = `${endHours}:${endMinutes}`;
 
     currentRanges.push(`${start}-${end}`);
     updateRangesList();
 
-    // Reset inputs
-    startTimeInput.value = "";
-    endTimeInput.value = "";
+    startHoursInput.value = "";
+    startMinutesInput.value = "";
+    endHoursInput.value = "";
+    endMinutesInput.value = "";
+    startHoursInput.focus();
 }
 
 function removeTimeRange(index) {
@@ -251,7 +292,6 @@ function addDay() {
     saveToLocalStorage();
     updateDisplay();
 
-    // Reset inputs
     dayInput.value = "";
     monthInput.value = "";
     yearInput.value = "";
@@ -263,16 +303,20 @@ function addPaycheck() {
     const day = parseInt(paycheckDayInput.value);
     const month = parseInt(paycheckMonthInput.value);
     const year = parseInt(paycheckYearInput.value);
+    const time = document.querySelector(
+        'input[name="paycheck-time"]:checked'
+    ).value;
 
     if (!day || !month || !year) return;
     if (day < 1 || day > 31 || month < 1 || month > 12) return;
 
     const date = formatDateString(day, month, year);
-    paychecks.push(date);
+    const fullDateTime = `${date}T${time}`;
+
+    paychecks.push(fullDateTime);
     saveToLocalStorage();
     updateDisplay();
 
-    // Reset inputs
     paycheckDayInput.value = "";
     paycheckMonthInput.value = "";
     paycheckYearInput.value = "";
@@ -284,7 +328,12 @@ function deleteDay(date) {
     updateDisplay();
 }
 
-// Initialize date input with current date
+function deletePaycheck(date) {
+    paychecks = paychecks.filter((paycheck) => paycheck !== date);
+    saveToLocalStorage();
+    updateDisplay();
+}
+
 function setCurrentDate() {
     const today = new Date();
     dayInput.value = today.getDate();
@@ -292,7 +341,6 @@ function setCurrentDate() {
     yearInput.value = today.getFullYear();
 }
 
-// Initialize display
 document.addEventListener("DOMContentLoaded", () => {
     setCurrentDate();
     updateDisplay();
@@ -305,14 +353,46 @@ function formatDateString(day, month, year) {
     )}`;
 }
 
-// Event listeners
-addDayButton.addEventListener("click", addDay);
-addPaycheckButton.addEventListener("click", addPaycheck);
-addRangeButton.addEventListener("click", addTimeRange);
+function initializeEventListeners() {
+    const numberInputs = [
+        startHoursInput,
+        startMinutesInput,
+        endHoursInput,
+        endMinutesInput,
+        dayInput,
+        monthInput,
+        paycheckDayInput,
+        paycheckMonthInput,
+    ];
+
+    numberInputs.forEach((input) => {
+        input.addEventListener("input", handleNumberInput);
+    });
+
+    addDayButton.addEventListener("click", addDay);
+    addPaycheckButton.addEventListener("click", addPaycheck);
+    addRangeButton.addEventListener("click", addTimeRange);
+    dayInput.addEventListener("blur", handleDayMonthBlur);
+    monthInput.addEventListener("blur", handleDayMonthBlur);
+    paycheckDayInput.addEventListener("blur", handleDayMonthBlur);
+    paycheckMonthInput.addEventListener("blur", handleDayMonthBlur);
+}
+
+function handleDayMonthBlur(e) {
+    const val = e.target.value.replace(/\D/g, "");
+    if (val.length === 1) {
+        e.target.value = val.padStart(2, "0");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setCurrentDate();
+    initializeEventListeners();
+    updateDisplay();
+});
 
 function handleTimeInput(e) {
     if (e.target.value.length === 5) {
-        // HH:MM format
         if (e.target.id === "start-time") {
             endTimeInput.focus();
         } else if (e.target.id === "end-time") {
@@ -335,15 +415,46 @@ function handleTimeKeypress(e) {
     }
 }
 
-startTimeInput.addEventListener("input", handleTimeInput);
-endTimeInput.addEventListener("input", handleTimeInput);
-startTimeInput.addEventListener("keypress", handleTimeKeypress);
-endTimeInput.addEventListener("keypress", handleTimeKeypress);
+function handleNumberInput(e) {
+    const input = e.target;
+    let value = input.value;
+    
+    value = value.replace(/[^\d]/g, '');
+    
+    const numValue = parseInt(value) || 0;
+    if (input.id.includes('hours') && numValue > 23) {
+        value = '23';
+    } else if (input.id.includes('minutes') && numValue > 59) {
+        value = '59';
+    } else if (input.id.includes('month') && numValue > 12) {
+        value = '12';
+    } else if (input.id.includes('day') && numValue > 31) {
+        value = '31';
+    }
 
-// Initialize display
-document.addEventListener("DOMContentLoaded", () => {
-    setCurrentDate();
-    updateDisplay();
-});
+    input.value = value;
+
+    if (value.length >= 2) {
+        requestAnimationFrame(() => {
+            if (input === startHoursInput) startMinutesInput.focus();
+            else if (input === startMinutesInput) endHoursInput.focus();
+            else if (input === endHoursInput) endMinutesInput.focus();
+            else if (input === endMinutesInput) addRangeButton.focus();
+            else if (input === dayInput) monthInput.focus();
+            else if (input === monthInput) yearInput.focus();
+            else if (input === yearInput) startHoursInput.focus();
+            else if (input === paycheckDayInput) paycheckMonthInput.focus();
+            else if (input === paycheckMonthInput) paycheckYearInput.focus();
+            else if (input === paycheckYearInput) {
+                const radio = document.querySelector(
+                    'input[name="paycheck-time"]'
+                );
+                if (radio) radio.focus();
+            }
+        });
+    }
+}
+
+window.deletePaycheck = deletePaycheck;
 
 updateDisplay();

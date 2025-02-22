@@ -112,11 +112,25 @@ body.dark-mode .container {
 
 #darkMode {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    bottom: 20px;
+    left: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 10px 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+#darkMode:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+#darkMode b {
+    font-size: 0.9rem;
+    user-select: none;
 }
 
 #dark-mode-toggle {
@@ -176,7 +190,6 @@ input[type="number"] {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: var(--input-bg);
-    margin-right: 8px;
     transition: all 0.3s ease;
     font-size: 0.95rem;
     height: 36px;
@@ -246,26 +259,45 @@ body.dark-mode select {
 
 #day-list {
     margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-#day-list div {
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color);
+#day-list > div:not(.paycheck-separator) {
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: background-color 0.3s ease;
+    transition: all 0.2s ease;
 }
 
-#day-list div:hover {
-    background-color: var(--bg-color);
+#day-list > div:not(.paycheck-separator):hover {
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#day-list > div:not(.paycheck-separator) span {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#day-list > div:not(.paycheck-separator) span:first-child {
+    font-family: "Roboto Mono", monospace;
+    font-size: 1.1em;
+    font-weight: 500;
 }
 
 #total-time,
 #time-from-last-paycheck {
     margin: 15px 0;
     padding: 10px;
-    background: var(--input-bg);
+    background: var (--input-bg);
     border-radius: 4px;
     font-weight: bold;
     border: 1px solid var (--border-color);
@@ -273,11 +305,19 @@ body.dark-mode select {
 
 @media screen and (max-width: 600px) {
     body {
-        padding: 15px;
+        padding: 10px;
     }
 
     .container {
         padding: 15px;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
     }
 
     textarea {
@@ -290,13 +330,15 @@ body.dark-mode select {
         margin-bottom: 8px;
     }
 
-    button {
+    button:not(.delete-button) {
         width: 100%;
         justify-content: center;
     }
 
     #add-day,
     #add-paycheck {
+        padding: 12px;
+        margin-top: 15px;
         flex-wrap: wrap;
     }
 
@@ -307,6 +349,141 @@ body.dark-mode select {
     #add-paycheck button {
         flex: 1 1 100%;
     }
+
+    .date-inputs {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .date-inputs input[type="number"] {
+        flex: 1;
+        min-width: 60px;
+        font-size: 0.9rem;
+    }
+
+    .time-range-input {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .time-pair {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    input[type="time"] {
+        flex: 1;
+        width: auto;
+    }
+
+    #add-range {
+        width: 100%;
+        margin-top: 8px;
+        min-height: 44px;
+    }
+
+    .range-item {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 4px 0;
+        padding: 8px 12px;
+    }
+
+    #ranges-list {
+        width: 100%;
+        padding: 8px 0;
+    }
+
+    .paycheck-separator {
+        margin: 15px -12px;
+        padding: 10px 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    #darkMode {
+        bottom: 10px;
+        left: 10px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    #total-time,
+    #time-from-last-paycheck {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    #day-list {
+        gap: 6px;
+    }
+
+    #day-list > div:not(.paycheck-separator) {
+        padding: 10px 12px;
+    }
+
+    #day-list > div:not(.paycheck-separator) span:first-child {
+        font-size: 1em;
+    }
+
+    .time-ranges-display {
+        font-size: 0.85em !important;
+    }
+
+    #day-list div {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .time-ranges-display {
+        font-size: 0.8rem;
+    }
+
+    .delete-button {
+        min-width: 28px;
+        height: 28px;
+    }
+
+    .delete-button img {
+        width: 14px;
+        height: 14px;
+    }
+
+    .row {
+        width: 100%;
+    }
+
+    #ranges-list,
+    .range-item,
+    #add-range {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .time-range-input,
+    .time-inputs {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .date-inputs input[type="number"] {
+        min-width: 50px;
+        padding: 6px;
+    }
+
+    input[type="time"] {
+        padding: 6px;
+    }
+
+    .time-pair span {
+        font-size: 0.9rem;
+    }
 }
 
 body.dark-mode button img,
@@ -315,7 +492,41 @@ body.dark-mode button img {
 }
 
 .time-inputs {
+    width: 100%;
     display: flex;
+    flex-direction: column;
+}
+
+.time-range-input {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: nowrap;
+}
+
+#add-range {
+    flex: 0 0 auto;
+    margin: 0;
+    width: auto;
+}
+
+#ranges-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    min-height: 46px;
+    width: 100%;
+}
+
+.range-item {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 4px 0;
+    padding: 12px;
 }
 
 #time-ranges {
@@ -335,7 +546,6 @@ body.dark-mode button img {
 #add-day {
     display: flex;
     flex-direction: column;
-
 }
 
 .row {
@@ -350,9 +560,14 @@ body.dark-mode button img {
 }
 
 .time-ranges-display {
-    font-size: 0.9em;
+    font-family: "Roboto Mono", monospace;
+    font-size: 0.9em !important;
     color: var(--text-color);
-    opacity: 0.8;
+    opacity: 0.7;
+    background: var(--input-bg);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
 }
 
 .date-inputs {
@@ -411,24 +626,58 @@ body.dark-mode button img {
     }
 }
 
-.time-range-input {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
 .time-pair {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1;
+    flex: 0 1 auto; /* Don't expand to fill space */
 }
 
-.time-pair span {
-    color: var(--text-color);
-    opacity: 0.7;
-    font-weight: 500;
-    user-select: none;
+@media screen and (max-width: 600px) {
+    .time-range-input {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .time-pair {
+        width: 100%;
+        flex: 1;
+        margin-bottom: 8px;
+    }
+
+    #add-range {
+        width: 100%;
+        margin-top: 8px;
+        min-height: 44px;
+    }
+
+    #ranges-list {
+        padding: 8px 0;
+    }
+
+    .range-item {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 4px 0;
+        padding: 8px 12px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .time-pair {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .time-pair span {
+        text-align: center;
+    }
+
+    .custom-time-input {
+        max-width: none;
+    }
 }
 
 input[type="time"] {
@@ -448,15 +697,6 @@ input[type="time"] {
 input[type="time"]:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-}
-
-#ranges-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px;
-    border-radius: 4px;
-    min-height: 46px;
 }
 
 .range-item {
@@ -509,23 +749,191 @@ input[type="time"]:focus {
 }
 
 .paycheck-separator {
-    margin: 20px -15px;
-    padding: 12px 15px;
-    background-color: var(--input-bg);
+    margin: 24px -15px;
+    padding: 16px;
+    background: linear-gradient(to right, var(--input-bg), var(--bg-color));
+    border-left: 4px solid var(--primary-color);
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
-    font-weight: 500;
+    position: relative;
+    transition: all 0.2s ease;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.paycheck-separator:hover {
+    transform: translateX(4px);
+    background: linear-gradient(to right, var(--input-bg) 60%, var(--bg-color));
+}
+
+.paycheck-separator .info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 40px;
 }
 
 .paycheck-separator .date {
     font-family: "Roboto Mono", monospace;
+    font-size: 1.1em;
+    font-weight: 600;
 }
 
 .paycheck-separator .total {
-    opacity: 0.8;
     font-size: 0.9em;
+    opacity: 0.8;
+    font-family: "Roboto Mono", monospace;
+}
+
+.paycheck-separator .delete-paycheck {
+    position: static;
+    transform: none;
+    background-color: transparent;
+    opacity: 0.6;
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+    min-width: 32px;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.paycheck-separator .delete-paycheck:hover {
+    background-color: #ff5252;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.paycheck-separator .delete-paycheck img {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.paycheck-separator .delete-paycheck:hover img {
+    transform: rotate(90deg);
+}
+
+@media screen and (max-width: 600px) {
+    .paycheck-separator {
+        margin: 16px -12px;
+        padding: 12px;
+    }
+
+    .paycheck-separator .date {
+        font-size: 1em;
+    }
+
+    .paycheck-separator .total {
+        font-size: 0.85em;
+    }
+}
+
+.paycheck-type {
+    display: flex;
+    gap: 16px;
+    margin: 8px 0;
+}
+
+.paycheck-type label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.paycheck-type input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.delete-button {
+    background: transparent !important;
+    padding: 6px !important;
+    height: 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    border-radius: 16px !important;
+    opacity: 0.6;
+    transition: all 0.2s ease !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-button:hover {
+    background: #ff5252 !important;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.delete-button img {
+    width: 16px !important;
+    height: 16px !important;
+    transition: transform 0.2s ease;
+}
+
+.delete-button:hover img {
+    transform: rotate(90deg);
+}
+
+.custom-time-input {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0 8px;
+    height: 36px;
+    transition: all 0.2s ease;
+}
+
+.custom-time-input:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.custom-time-input input {
+    width: 32px;
+    border: none;
+    padding: 0;
+    text-align: center;
+    font-family: "Roboto Mono", monospace;
+    font-size: 1rem;
+    background: transparent;
+}
+
+.custom-time-input input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.custom-time-input span {
+    color: var(--text-color);
+    opacity: 0.7;
+    user-select: none;
+    font-family: "Roboto Mono", monospace;
+}
+
+#total-time,
+#time-from-last-paycheck {
+    font-family: "Roboto Mono", monospace;
+    font-size: 1.1em;
+    font-weight: 500;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    margin: 20px 0;
+    transition: all 0.2s ease;
 }

@@ -38,9 +38,41 @@
                     <div class="time-inputs">
                         <div class="time-range-input">
                             <div class="time-pair">
-                                <input type="time" id="start-time" />
+                                <div class="custom-time-input">
+                                    <input
+                                        type="number"
+                                        id="start-hours"
+                                        placeholder="HH"
+                                        min="0"
+                                        max="23"
+                                    />
+                                    <span>:</span>
+                                    <input
+                                        type="number"
+                                        id="start-minutes"
+                                        placeholder="MM"
+                                        min="0"
+                                        max="59"
+                                    />
+                                </div>
                                 <span>to</span>
-                                <input type="time" id="end-time" />
+                                <div class="custom-time-input">
+                                    <input
+                                        type="number"
+                                        id="end-hours"
+                                        placeholder="HH"
+                                        min="0"
+                                        max="23"
+                                    />
+                                    <span>:</span>
+                                    <input
+                                        type="number"
+                                        id="end-minutes"
+                                        placeholder="MM"
+                                        min="0"
+                                        max="59"
+                                    />
+                                </div>
                             </div>
                             <button id="add-range">
                                 <img src="add.svg" />Add Range
@@ -81,6 +113,25 @@
                         max="2099"
                     />
                 </div>
+                <div class="paycheck-type">
+                    <label>
+                        <input
+                            type="radio"
+                            name="paycheck-time"
+                            value="06:00"
+                            checked
+                        />
+                        Morning (6:00)
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="paycheck-time"
+                            value="23:00"
+                        />
+                        Night (23:00)
+                    </label>
+                </div>
                 <button id="add-paycheck-button">
                     <img src="add.svg" />Add paycheck
                 </button>
@@ -91,6 +142,6 @@
             <input type="checkbox" id="dark-mode-toggle" />
             <b>Dark Mode</b>
         </div>
+        <script src="script.js"></script>
     </body>
-    <script src="script.js"></script>
 </html>
