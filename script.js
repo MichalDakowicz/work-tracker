@@ -98,6 +98,9 @@ function calculateTimeForPeriod(startDate, endDate) {
     return calculateTotalTime(periodDays);
 }
 
+let editMode = false;
+let editingDate = null;
+
 function updateDisplay() {
     const totalMinutes = calculateTotalTime(workDays);
     totalTimeElement.textContent = `Total Time: ${formatTime(totalMinutes)}`;
@@ -125,11 +128,18 @@ function updateDisplay() {
             }m
                     ${timeRangesHtml}
                 </span>
-                <button onclick="deleteDay('${
-                    day.date
-                }')" class="delete-button">
-                    <img src="delete.svg" alt="Delete" />
-                </button>
+                <div class="action-buttons">
+                    <button onclick="editDay('${
+                        day.date
+                    }')" class="delete-button edit-button">
+                        <img src="edit.svg" alt="Edit" />
+                    </button>
+                    <button onclick="deleteDay('${
+                        day.date
+                    }')" class="delete-button">
+                        <img src="delete.svg" alt="Delete" />
+                    </button>
+                </div>
             `;
             dayList.appendChild(dayElement);
 
@@ -198,6 +208,43 @@ function updateDisplay() {
     }
 }
 
+function editDay(date) {
+    const record = workDays.find((d) => d.date === date);
+    if (record) {
+        editMode = true;
+        editingDate = date;
+        const parts = date.split("-");
+        yearInput.value = parts[0];
+        monthInput.value = parts[1];
+        dayInput.value = parts[2];
+        currentRanges = record.timeRanges.split(", ").filter(Boolean);
+        updateRangesList();
+        addDayButton.textContent = "Update";
+        if (!document.getElementById("cancel-edit-button")) {
+            const cancelBtn = document.createElement("button");
+            cancelBtn.id = "cancel-edit-button";
+            cancelBtn.textContent = "Cancel Edit";
+            cancelBtn.addEventListener("click", cancelEdit);
+            addDayButton.parentNode.appendChild(cancelBtn);
+        }
+    }
+}
+
+function cancelEdit() {
+    editMode = false;
+    editingDate = null;
+    dayInput.value = "";
+    monthInput.value = "";
+    yearInput.value = "";
+    currentRanges = [];
+    updateRangesList();
+    addDayButton.textContent = "Add";
+    const cancelBtn = document.getElementById("cancel-edit-button");
+    if (cancelBtn) {
+        cancelBtn.remove();
+    }
+}
+
 function calculateTimeFromRanges(timeRanges) {
     if (!timeRanges) return 0;
 
@@ -254,6 +301,10 @@ function addTimeRange() {
 function removeTimeRange(index) {
     currentRanges.splice(index, 1);
     updateRangesList();
+    const prev = lastFocusedInput
+        ? getPreviousInput(lastFocusedInput)
+        : startHoursInput;
+    prev.focus();
 }
 
 function updateRangesList() {
@@ -301,36 +352,44 @@ function addDay() {
     const minutes = totalMinutes % 60;
     const date = formatDateString(day, month, year);
 
-    const existingDayIndex = workDays.findIndex((d) => d.date === date);
-
-    if (existingDayIndex !== -1) {
-        const existingDay = workDays[existingDayIndex];
-        const existingRanges = existingDay.timeRanges.split(", ");
-        const newRanges = [...existingRanges, ...currentRanges];
-
-        const sortedRanges = sortTimeRanges(newRanges);
-        const timeRangesString = sortedRanges.join(", ");
-
-        const totalNewMinutes = calculateTimeFromRanges(timeRangesString);
-        const newHours = Math.floor(totalNewMinutes / 60);
-        const newMinutes = totalNewMinutes % 60;
-
-        workDays[existingDayIndex] = {
-            date,
-            hours: newHours,
-            minutes: newMinutes,
-            timeRanges: timeRangesString,
-        };
+    if (editMode && editingDate === date) {
+        const index = workDays.findIndex((d) => d.date === date);
+        if (index !== -1) {
+            workDays[index] = {
+                date,
+                hours,
+                minutes,
+                timeRanges: timeRanges,
+            };
+        }
+        cancelEdit();
     } else {
-        const sortedRanges = sortTimeRanges(currentRanges);
-        const timeRangesString = sortedRanges.join(", ");
-
-        workDays.push({
-            date,
-            hours,
-            minutes,
-            timeRanges: timeRangesString,
-        });
+        const existingDayIndex = workDays.findIndex((d) => d.date === date);
+        if (existingDayIndex !== -1) {
+            const existingDay = workDays[existingDayIndex];
+            const existingRanges = existingDay.timeRanges.split(", ");
+            const newRanges = [...existingRanges, ...currentRanges];
+            const sortedRanges = sortTimeRanges(newRanges);
+            const timeRangesString = sortedRanges.join(", ");
+            const totalNewMinutes = calculateTimeFromRanges(timeRangesString);
+            const newHours = Math.floor(totalNewMinutes / 60);
+            const newMinutes = totalNewMinutes % 60;
+            workDays[existingDayIndex] = {
+                date,
+                hours: newHours,
+                minutes: newMinutes,
+                timeRanges: timeRangesString,
+            };
+        } else {
+            const sortedRanges = sortTimeRanges(currentRanges);
+            const timeRangesString = sortedRanges.join(", ");
+            workDays.push({
+                date,
+                hours,
+                minutes,
+                timeRanges: timeRangesString,
+            });
+        }
     }
 
     saveToLocalStorage();
@@ -366,22 +425,70 @@ function addPaycheck() {
     paycheckYearInput.value = "";
 }
 
+function showConfirmModal(message, onConfirm) {
+    const modal = document.getElementById("confirm-modal");
+    const msgEl = document.getElementById("confirm-message");
+    const yesBtn = document.getElementById("confirm-yes");
+    const noBtn = document.getElementById("confirm-no");
+
+    msgEl.textContent = message;
+    modal.style.display = "flex";
+
+    function modalClickHandler(e) {
+        if (e.target === modal) {
+            cleanUp();
+        }
+    }
+    modal.addEventListener("click", modalClickHandler);
+
+    const cleanUp = () => {
+        modal.style.display = "none";
+        yesBtn.removeEventListener("click", confirmHandler);
+        noBtn.removeEventListener("click", cancelHandler);
+        modal.removeEventListener("click", modalClickHandler);
+    };
+
+    function confirmHandler() {
+        cleanUp();
+        onConfirm();
+    }
+
+    function cancelHandler() {
+        cleanUp();
+    }
+
+    yesBtn.addEventListener("click", confirmHandler);
+    noBtn.addEventListener("click", cancelHandler);
+}
+
 function deleteDay(date) {
-    workDays = workDays.filter((day) => day.date !== date);
-    saveToLocalStorage();
-    updateDisplay();
+    showConfirmModal("Delete this day record?", function () {
+        workDays = workDays.filter((day) => day.date !== date);
+        saveToLocalStorage();
+        updateDisplay();
+        const prev = lastFocusedInput
+            ? getPreviousInput(lastFocusedInput)
+            : dayInput;
+        prev.focus();
+    });
 }
 
 function deletePaycheck(date) {
-    paychecks = paychecks.filter((paycheck) => paycheck !== date);
-    saveToLocalStorage();
-    updateDisplay();
+    showConfirmModal("Delete this paycheck record?", function () {
+        paychecks = paychecks.filter((p) => p !== date);
+        saveToLocalStorage();
+        updateDisplay();
+        const prev = lastFocusedInput
+            ? getPreviousInput(lastFocusedInput)
+            : paycheckDayInput;
+        prev.focus();
+    });
 }
 
 function setCurrentDate() {
     const today = new Date();
-    dayInput.value = today.getDate();
-    monthInput.value = today.getMonth() + 1;
+    dayInput.value = String(today.getDate()).padStart(2, "0");
+    monthInput.value = String(today.getMonth() + 1).padStart(2, "0");
     yearInput.value = today.getFullYear();
 }
 
@@ -397,6 +504,36 @@ function formatDateString(day, month, year) {
     )}`;
 }
 
+const inputOrder = [
+    startHoursInput,
+    startMinutesInput,
+    endHoursInput,
+    endMinutesInput,
+    dayInput,
+    monthInput,
+    yearInput,
+    paycheckDayInput,
+    paycheckMonthInput,
+    paycheckYearInput,
+];
+
+function getPreviousInput(currentInput) {
+    const index = inputOrder.indexOf(currentInput);
+    if (index > 0) {
+        return inputOrder[index - 1];
+    }
+    return inputOrder[0];
+}
+
+let lastFocusedInput = null;
+
+const allInputs = document.querySelectorAll("input");
+allInputs.forEach((input) => {
+    input.addEventListener("focus", () => {
+        lastFocusedInput = input;
+    });
+});
+
 function initializeEventListeners() {
     const numberInputs = [
         startHoursInput,
@@ -405,12 +542,15 @@ function initializeEventListeners() {
         endMinutesInput,
         dayInput,
         monthInput,
+        yearInput,
         paycheckDayInput,
         paycheckMonthInput,
+        paycheckYearInput,
     ];
 
     numberInputs.forEach((input) => {
         input.addEventListener("input", handleNumberInput);
+        input.addEventListener("keydown", handleBackspace);
     });
 
     addDayButton.addEventListener("click", addDay);
@@ -422,18 +562,24 @@ function initializeEventListeners() {
     paycheckMonthInput.addEventListener("blur", handleDayMonthBlur);
 }
 
-function handleDayMonthBlur(e) {
-    const val = e.target.value.replace(/\D/g, "");
-    if (val.length === 1) {
-        e.target.value = val.padStart(2, "0");
-    }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     setCurrentDate();
     initializeEventListeners();
     updateDisplay();
 });
+
+function handleDayMonthBlur(e) {
+    const val = e.target.value.replace(/\D/g, "");
+    if (e.target.id === "year" || e.target.id === "paycheck-year") {
+        if (val.length > 0 && val.length < 4) {
+            e.target.value = val.padStart(4, "0");
+        }
+    } else {
+        if (val.length === 1) {
+            e.target.value = val.padStart(2, "0");
+        }
+    }
+}
 
 function handleTimeInput(e) {
     if (e.target.value.length === 5) {
@@ -461,11 +607,9 @@ function handleTimeKeypress(e) {
 
 function handleNumberInput(e) {
     const input = e.target;
-    let value = input.value;
-
-    value = value.replace(/[^\d]/g, "");
-
+    let value = input.value.replace(/[^\d]/g, "");
     const numValue = parseInt(value) || 0;
+
     if (input.id.includes("hours") && numValue > 23) {
         value = "23";
     } else if (input.id.includes("minutes") && numValue > 59) {
@@ -475,10 +619,12 @@ function handleNumberInput(e) {
     } else if (input.id.includes("day") && numValue > 31) {
         value = "31";
     }
-
     input.value = value;
 
-    if (value.length >= 2) {
+    let advanceLength =
+        input.id === "year" || input.id === "paycheck-year" ? 4 : 2;
+
+    if (value.length >= advanceLength) {
         requestAnimationFrame(() => {
             if (input === startHoursInput) startMinutesInput.focus();
             else if (input === startMinutesInput) endHoursInput.focus();
@@ -499,6 +645,73 @@ function handleNumberInput(e) {
     }
 }
 
+function handleBackspace(e) {
+    if (e.key === "Backspace" && e.target.value === "") {
+        const prev = getPreviousInput(e.target);
+        if (prev && prev !== e.target && prev.value.length > 0) {
+            e.preventDefault();
+            prev.value = prev.value.slice(0, -1);
+            prev.focus();
+        }
+    }
+}
+
 window.deletePaycheck = deletePaycheck;
+
+function exportData() {
+    const data = { workDays, paychecks };
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "work-tracker-data.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const exportBtn = document.getElementById("export-data");
+    if (exportBtn) {
+        exportBtn.addEventListener("click", exportData);
+    }
+});
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.workDays && data.paychecks) {
+                workDays = data.workDays;
+                paychecks = data.paychecks;
+                saveToLocalStorage();
+                updateDisplay();
+            } else {
+                alert("Invalid data format.");
+            }
+        } catch (err) {
+            alert("Failed to import data.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const importInput = document.getElementById("import-data");
+    if (importInput) {
+        importInput.addEventListener("change", importData);
+    }
+    const importTrigger = document.getElementById("import-trigger");
+    if (importTrigger) {
+        importTrigger.addEventListener("click", () => {
+            importInput.click();
+        });
+    }
+});
 
 updateDisplay();
