@@ -271,6 +271,20 @@ function updateRangesList() {
     });
 }
 
+function sortTimeRanges(ranges) {
+    return ranges.sort((a, b) => {
+        const [startA] = a.split("-").map((time) => {
+            const [hours, minutes] = time.trim().split(":").map(Number);
+            return hours * 60 + minutes;
+        });
+        const [startB] = b.split("-").map((time) => {
+            const [hours, minutes] = time.trim().split(":").map(Number);
+            return hours * 60 + minutes;
+        });
+        return startA - startB;
+    });
+}
+
 function addDay() {
     const day = parseInt(dayInput.value);
     const month = parseInt(monthInput.value);
@@ -287,8 +301,38 @@ function addDay() {
     const minutes = totalMinutes % 60;
     const date = formatDateString(day, month, year);
 
-    workDays = workDays.filter((d) => d.date !== date);
-    workDays.push({ date, hours, minutes, timeRanges });
+    const existingDayIndex = workDays.findIndex((d) => d.date === date);
+
+    if (existingDayIndex !== -1) {
+        const existingDay = workDays[existingDayIndex];
+        const existingRanges = existingDay.timeRanges.split(", ");
+        const newRanges = [...existingRanges, ...currentRanges];
+
+        const sortedRanges = sortTimeRanges(newRanges);
+        const timeRangesString = sortedRanges.join(", ");
+
+        const totalNewMinutes = calculateTimeFromRanges(timeRangesString);
+        const newHours = Math.floor(totalNewMinutes / 60);
+        const newMinutes = totalNewMinutes % 60;
+
+        workDays[existingDayIndex] = {
+            date,
+            hours: newHours,
+            minutes: newMinutes,
+            timeRanges: timeRangesString,
+        };
+    } else {
+        const sortedRanges = sortTimeRanges(currentRanges);
+        const timeRangesString = sortedRanges.join(", ");
+
+        workDays.push({
+            date,
+            hours,
+            minutes,
+            timeRanges: timeRangesString,
+        });
+    }
+
     saveToLocalStorage();
     updateDisplay();
 
@@ -418,18 +462,18 @@ function handleTimeKeypress(e) {
 function handleNumberInput(e) {
     const input = e.target;
     let value = input.value;
-    
-    value = value.replace(/[^\d]/g, '');
-    
+
+    value = value.replace(/[^\d]/g, "");
+
     const numValue = parseInt(value) || 0;
-    if (input.id.includes('hours') && numValue > 23) {
-        value = '23';
-    } else if (input.id.includes('minutes') && numValue > 59) {
-        value = '59';
-    } else if (input.id.includes('month') && numValue > 12) {
-        value = '12';
-    } else if (input.id.includes('day') && numValue > 31) {
-        value = '31';
+    if (input.id.includes("hours") && numValue > 23) {
+        value = "23";
+    } else if (input.id.includes("minutes") && numValue > 59) {
+        value = "59";
+    } else if (input.id.includes("month") && numValue > 12) {
+        value = "12";
+    } else if (input.id.includes("day") && numValue > 31) {
+        value = "31";
     }
 
     input.value = value;
