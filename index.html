@@ -8,7 +8,21 @@
     </head>
     <body>
         <div class="container">
-            <h1>Work Tracker</h1>
+            <div class="header">
+                <h1>Work Tracker</h1>
+                <div id="header-controls">
+                    <button id="export-data">
+                        <img src="export.svg" alt="Export" />Export Data
+                    </button>
+                    <button id="import-trigger">
+                        <img src="import.svg" alt="Import" />Import Data
+                    </button>
+                    <div id="darkMode-inline">
+                        <input type="checkbox" id="dark-mode-toggle" />
+                        <b>Dark Mode</b>
+                    </div>
+                </div>
+            </div>
             <div id="total-time"></div>
             <div id="time-from-last-paycheck"></div>
             <div id="day-list"></div>
@@ -113,35 +127,31 @@
                         max="2099"
                     />
                 </div>
-                <div class="paycheck-type">
-                    <label>
-                        <input
-                            type="radio"
-                            name="paycheck-time"
-                            value="06:00"
-                            checked
-                        />
-                        Morning (6:00)
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="paycheck-time"
-                            value="23:00"
-                        />
-                        Night (23:00)
-                    </label>
+                <!-- NEW: Replace paycheck-type radios with a time input -->
+                <div class="paycheck-time-input">
+                    <label for="paycheck-time"><b>Paycheck Time:</b></label>
+                    <input id="paycheck-time" type="time" value="06:00" />
                 </div>
                 <button id="add-paycheck-button">
                     <img src="add.svg" />Add paycheck
                 </button>
             </div>
         </div>
-
-        <div id="darkMode">
-            <input type="checkbox" id="dark-mode-toggle" />
-            <b>Dark Mode</b>
+        <div id="confirm-modal" class="modal" style="display: none">
+            <div class="modal-content">
+                <p id="confirm-message">
+                    Are you sure you want to delete this item?
+                </p>
+                <button id="confirm-yes">Yes</button>
+                <button id="confirm-no">No</button>
+            </div>
         </div>
+        <input
+            type="file"
+            id="import-data"
+            accept="application/json"
+            style="display: none"
+        />
         <script src="script.js"></script>
     </body>
 </html>
