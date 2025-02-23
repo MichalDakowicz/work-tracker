@@ -463,6 +463,112 @@ body.dark-mode select {
         margin: 0;
         width: 100%;
     }
+
+    .container {
+        padding: 10px;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        max-width: 100%;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    #header-controls {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #header-controls button {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .time-range-input {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .time-pair {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .custom-time-input {
+        flex: 1;
+        max-width: 45%;
+    }
+
+    #add-range {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .date-inputs {
+        flex-wrap: nowrap;
+        gap: 5px;
+    }
+
+    .date-inputs input[type="number"] {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 4px;
+    }
+
+    #add-day,
+    #add-paycheck {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .paycheck-time-input {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .paycheck-time-input input[type="time"] {
+        width: 100%;
+    }
+
+    #day-list > div:not(.paycheck-separator) {
+        padding: 10px;
+    }
+
+    .paycheck-separator {
+        margin: 15px -10px;
+        padding: 12px;
+    }
+
+    .paycheck-separator .info {
+        padding-right: 0;
+    }
+
+    .time-ranges-display {
+        font-size: 0.8em !important;
+        padding: 3px 6px;
+    }
+
+    #total-time,
+    #time-from-last-paycheck {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    #ranges-list {
+        gap: 6px;
+    }
+
+    .range-item {
+        padding: 8px 12px;
+    }
 }
 
 @media screen and (max-width: 400px) {
@@ -477,6 +583,44 @@ body.dark-mode select {
 
     .time-pair span {
         font-size: 0.9rem;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    #header-controls button {
+        min-width: 100%;
+    }
+
+    .time-pair {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .custom-time-input {
+        max-width: 100%;
+    }
+
+    .date-inputs {
+        flex-direction: column;
+    }
+
+    .date-inputs input[type="number"] {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    body.dark-mode .container {
+        background-color: var(--bg-color);
+    }
+
+    body.dark-mode #add-day,
+    body.dark-mode #add-paycheck {
+        background-color: rgba(255, 255, 255, 0.05);
     }
 }
 
