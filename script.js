@@ -686,9 +686,12 @@ function handleNumberInput(e) {
             else if (input === yearInput) startHoursInput.focus();
             else if (input === paycheckDayInput) paycheckMonthInput.focus();
             else if (input === paycheckMonthInput) paycheckYearInput.focus();
-            else if (input === paycheckYearInput) paycheckHoursInput.focus();
-            else if (input === paycheckHoursInput) paycheckMinutesInput.focus();
-            else if (input === paycheckMinutesInput) addPaycheckButton.focus();
+            else if (input === paycheckYearInput) {
+                const radio = document.querySelector(
+                    'input[name="paycheck-time"]'
+                );
+                if (radio) radio.focus();
+            }
         });
     }
 }

@@ -583,7 +583,6 @@ body.dark-mode select {
     .range-item {
         padding: 8px 12px;
     }
-    
 }
 
 @media screen and (max-width: 455px) {

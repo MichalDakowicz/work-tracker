@@ -5,20 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Work Tracker</title>
         <link rel="stylesheet" href="style.css" />
-        <meta name="theme-color" content="#4caf50" />
-        <meta
-            name="description"
-            content="Track your work hours and paychecks"
-        />
+        <link rel="icon" href="img/icon.svg" />
         <link rel="manifest" href="manifest.json" />
-        <link
-            rel="icon"
-            type="image/png"
-            sizes="192x192"
-            href="img/icon-192.png"
-        />
+        <meta name="theme-color" content="#4caf50" />
         <link rel="apple-touch-icon" href="img/icon-192.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="img/icon.svg" />
     </head>
     <body>
         <div class="container">
@@ -181,19 +171,14 @@
         <script src="script.js"></script>
         <script>
             if ("serviceWorker" in navigator) {
-                window.addEventListener("load", () => {
-                    navigator.serviceWorker
-                        .register("/service-worker.js")
-                        .then((registration) => {
-                            console.log("ServiceWorker registered");
-                        })
-                        .catch((err) => {
-                            console.log(
-                                "ServiceWorker registration failed: ",
-                                err
-                            );
-                        });
-                });
+                navigator.serviceWorker
+                    .register("./sw.js", { scope: "/work-tracker/" })
+                    .then((registration) =>
+                        console.log("ServiceWorker registered")
+                    )
+                    .catch((error) =>
+                        console.log("ServiceWorker registration failed:", error)
+                    );
             }
         </script>
     </body>
