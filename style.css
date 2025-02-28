@@ -516,7 +516,6 @@ body.dark-mode select {
 
     .custom-time-input {
         flex: 1;
-        max-width: 45%;
     }
 
     #add-range {
