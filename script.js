@@ -49,6 +49,9 @@ const startMinutesInput = document.querySelector("#start-minutes");
 const endHoursInput = document.querySelector("#end-hours");
 const endMinutesInput = document.querySelector("#end-minutes");
 
+const paycheckHoursInput = document.querySelector("#paycheck-hours");
+const paycheckMinutesInput = document.querySelector("#paycheck-minutes");
+
 let currentRanges = [];
 
 function formatTime(totalMinutes) {
@@ -195,12 +198,12 @@ function updateDisplay() {
                     <button onclick="editDay('${
                         ev.date
                     }')" class="delete-button edit-button">
-                        <img src="edit.svg" alt="Edit" />
+                        <img src="img/edit.svg" alt="Edit" />
                     </button>
                     <button onclick="deleteDay('${
                         ev.date
                     }')" class="delete-button">
-                        <img src="delete.svg" alt="Delete" />
+                        <img src="img/delete.svg" alt="Delete" />
                     </button>
                 </div>
             `;
@@ -225,7 +228,7 @@ function updateDisplay() {
                     <button onclick="deletePaycheck('${
                         ev.fullDate
                     }')" class="delete-paycheck" title="Delete paycheck">
-                        <img src="delete.svg" alt="Delete" />
+                        <img src="img/delete.svg" alt="Delete" />
                     </button>
                 `;
             dayList.appendChild(separator);
@@ -358,7 +361,7 @@ function updateRangesList() {
         rangeElement.innerHTML = `
             <span>${range}</span>
             <button onclick="removeTimeRange(${index})" class="delete-button">
-                <img src="delete.svg" alt="Delete" />
+                <img src="img/delete.svg" alt="Delete" />
             </button>
         `;
         rangesList.appendChild(rangeElement);
@@ -449,13 +452,14 @@ function addPaycheck() {
     const day = parseInt(paycheckDayInput.value);
     const month = parseInt(paycheckMonthInput.value);
     const year = parseInt(paycheckYearInput.value);
-    const time = document.querySelector("#paycheck-time").value;
+    const hours = paycheckHoursInput.value.padStart(2, "0");
+    const minutes = paycheckMinutesInput.value.padStart(2, "0");
 
-    if (!day || !month || !year) return;
+    if (!day || !month || !year || !hours || !minutes) return;
     if (day < 1 || day > 31 || month < 1 || month > 12) return;
 
     const date = formatDateString(day, month, year);
-    const fullDateTime = `${date}T${time}`;
+    const fullDateTime = `${date}T${hours}:${minutes}`;
 
     paychecks.push(fullDateTime);
     saveToLocalStorage();
@@ -464,6 +468,8 @@ function addPaycheck() {
     paycheckDayInput.value = "";
     paycheckMonthInput.value = "";
     paycheckYearInput.value = "";
+    paycheckHoursInput.value = "";
+    paycheckMinutesInput.value = "";
 }
 
 function showConfirmModal(message, onConfirm) {
@@ -556,6 +562,8 @@ const inputOrder = [
     paycheckDayInput,
     paycheckMonthInput,
     paycheckYearInput,
+    paycheckHoursInput,
+    paycheckMinutesInput,
 ];
 
 function getPreviousInput(currentInput) {
@@ -587,6 +595,8 @@ function initializeEventListeners() {
         paycheckDayInput,
         paycheckMonthInput,
         paycheckYearInput,
+        paycheckHoursInput,
+        paycheckMinutesInput,
     ];
 
     numberInputs.forEach((input) => {
@@ -676,12 +686,9 @@ function handleNumberInput(e) {
             else if (input === yearInput) startHoursInput.focus();
             else if (input === paycheckDayInput) paycheckMonthInput.focus();
             else if (input === paycheckMonthInput) paycheckYearInput.focus();
-            else if (input === paycheckYearInput) {
-                const radio = document.querySelector(
-                    'input[name="paycheck-time"]'
-                );
-                if (radio) radio.focus();
-            }
+            else if (input === paycheckYearInput) paycheckHoursInput.focus();
+            else if (input === paycheckHoursInput) paycheckMinutesInput.focus();
+            else if (input === paycheckMinutesInput) addPaycheckButton.focus();
         });
     }
 }

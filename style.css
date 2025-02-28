@@ -253,6 +253,10 @@ body.dark-mode select {
     flex: 0 0 auto;
 }
 
+#add-paycheck .custom-time-input {
+    margin-left: auto;
+}
+
 #day-list {
     margin: 24px 0;
     display: flex;
@@ -299,7 +303,7 @@ body.dark-mode select {
     border: 1px solid var (--border-color);
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 850px) {
     body {
         padding: 10px;
     }
@@ -344,6 +348,16 @@ body.dark-mode select {
 
     #add-paycheck button {
         flex: 1 1 100%;
+    }
+
+    #add-paycheck .custom-time-input {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    #add-paycheck .custom-time-input input {
+        flex: 1;
+        max-width: none;
     }
 
     .date-inputs {
@@ -569,9 +583,10 @@ body.dark-mode select {
     .range-item {
         padding: 8px 12px;
     }
+    
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 455px) {
     .date-inputs input[type="number"] {
         min-width: 50px;
         padding: 6px;
@@ -613,7 +628,7 @@ body.dark-mode select {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 850px) {
     body.dark-mode .container {
         background-color: var(--bg-color);
     }
@@ -748,7 +763,7 @@ body.dark-mode button img {
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 850px) {
     .date-inputs {
         width: 100%;
         flex-wrap: wrap;
@@ -772,7 +787,7 @@ body.dark-mode button img {
     flex: 0 1 auto;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 850px) {
     .time-range-input {
         flex-direction: column;
         width: 100%;
@@ -802,7 +817,7 @@ body.dark-mode button img {
     }
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 455px) {
     .time-pair {
         flex-direction: column;
         align-items: stretch;
@@ -959,7 +974,7 @@ input[type="time"]:focus {
     transform: rotate(90deg);
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 850px) {
     .paycheck-separator {
         margin: 16px -12px;
         padding: 12px;
@@ -1079,7 +1094,9 @@ input[type="time"]:focus {
 #start-hours,
 #start-minutes,
 #end-hours,
-#end-minutes {
+#end-minutes,
+#paycheck-hours,
+#paycheck-minutes {
     margin-bottom: 0;
 }
 
@@ -1140,7 +1157,7 @@ body.dark-mode #header-controls button {
     padding: 30px;
     border-radius: 8px;
     text-align: center;
-    max-width: 400px;
+    max-width: 455px;
     width: 90%;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     animation: fadeIn 0.3s forwards;

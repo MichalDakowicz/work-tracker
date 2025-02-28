@@ -5,6 +5,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Work Tracker</title>
         <link rel="stylesheet" href="style.css" />
+        <meta name="theme-color" content="#4caf50" />
+        <meta
+            name="description"
+            content="Track your work hours and paychecks"
+        />
+        <link rel="manifest" href="manifest.json" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="img/icon-192.png"
+        />
+        <link rel="apple-touch-icon" href="img/icon-192.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="img/icon.svg" />
     </head>
     <body>
         <div class="container">
@@ -12,10 +26,10 @@
                 <h1>Work Tracker</h1>
                 <div id="header-controls">
                     <button id="export-data">
-                        <img src="export.svg" alt="Export" />Export Data
+                        <img src="img/export.svg" alt="Export" />Export Data
                     </button>
                     <button id="import-trigger">
-                        <img src="import.svg" alt="Import" />Import Data
+                        <img src="img/import.svg" alt="Import" />Import Data
                     </button>
                     <div id="darkMode-inline">
                         <input type="checkbox" id="dark-mode-toggle" />
@@ -89,7 +103,7 @@
                                 </div>
                             </div>
                             <button id="add-range">
-                                <img src="add.svg" />Add Range
+                                <img src="img/add.svg" />Add Range
                             </button>
                         </div>
                     </div>
@@ -99,7 +113,7 @@
                 </div>
                 <div class="row">
                     <button id="add-day-button">
-                        <img src="add.svg" />Add
+                        <img src="img/add.svg" />Add
                     </button>
                 </div>
             </div>
@@ -126,14 +140,26 @@
                         min="2020"
                         max="2099"
                     />
-                </div>
-                <!-- NEW: Replace paycheck-type radios with a time input -->
-                <div class="paycheck-time-input">
-                    <label for="paycheck-time"><b>Paycheck Time:</b></label>
-                    <input id="paycheck-time" type="time" value="06:00" />
+                    <div class="custom-time-input" id="paycheck-time">
+                        <input
+                            type="number"
+                            id="paycheck-hours"
+                            placeholder="HH"
+                            min="0"
+                            max="23"
+                        />
+                        <span>:</span>
+                        <input
+                            type="number"
+                            id="paycheck-minutes"
+                            placeholder="MM"
+                            min="0"
+                            max="59"
+                        />
+                    </div>
                 </div>
                 <button id="add-paycheck-button">
-                    <img src="add.svg" />Add paycheck
+                    <img src="img/add.svg" />Add paycheck
                 </button>
             </div>
         </div>
@@ -153,5 +179,22 @@
             style="display: none"
         />
         <script src="script.js"></script>
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("/service-worker.js")
+                        .then((registration) => {
+                            console.log("ServiceWorker registered");
+                        })
+                        .catch((err) => {
+                            console.log(
+                                "ServiceWorker registration failed: ",
+                                err
+                            );
+                        });
+                });
+            }
+        </script>
     </body>
 </html>
