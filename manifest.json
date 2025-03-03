@@ -1,12 +1,12 @@
 {
     "name": "Work Tracker",
-    "short_name": "WorkTracker",
+    "short_name": "Work Tracker",
     "description": "Track your work hours and paychecks",
     "start_url": ".",
     "scope": ".",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#4caf50",
+    "theme_color": "#333",
     "icons": [
         {
             "src": "./img/icon-192.png",

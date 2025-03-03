@@ -113,21 +113,26 @@ function formatDisplayDate(dateString) {
 }
 
 function calculateTimeForPeriod(startDate, endDate) {
+    if (!startDate && endDate) {
+        const cutoff = new Date(endDate);
+        cutoff.setHours(23, 59, 59, 999);
+        const periodDays = workDays.filter(
+            (day) => new Date(day.date) <= cutoff
+        );
+        return calculateTotalTime(periodDays);
+    }
     const periodDays = workDays.filter((day) => {
         if (!day.timeRanges) return false;
-
         const ranges = day.timeRanges.split(",").map((r) => r.trim());
         return ranges.some((range) => {
             const [start] = range.split("-");
             const workDateTime = new Date(day.date + "T" + start.trim());
-
             return (
                 (!startDate || workDateTime > startDate) &&
                 (!endDate || workDateTime <= endDate)
             );
         });
     });
-
     return calculateTotalTime(periodDays);
 }
 
@@ -686,12 +691,8 @@ function handleNumberInput(e) {
             else if (input === yearInput) startHoursInput.focus();
             else if (input === paycheckDayInput) paycheckMonthInput.focus();
             else if (input === paycheckMonthInput) paycheckYearInput.focus();
-            else if (input === paycheckYearInput) {
-                const radio = document.querySelector(
-                    'input[name="paycheck-time"]'
-                );
-                if (radio) radio.focus();
-            }
+            else if (input === paycheckYearInput) paycheckHoursInput.focus();
+            else if (input === paycheckHoursInput) paycheckMinutesInput.focus();
         });
     }
 }
