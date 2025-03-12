@@ -925,7 +925,7 @@ input[type="time"]:focus {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding-right: 40px;
+    padding-right: 20px;
 }
 
 .paycheck-separator .date {
@@ -1134,6 +1134,123 @@ input[type="time"]:focus {
 body.dark-mode #header-controls button {
     color: #fff;
     border-color: #fff;
+}
+
+.paycheck-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.save-paycheck-image {
+    position: static;
+    transform: none;
+    background-color: transparent;
+    opacity: 0.6;
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+    min-width: 32px;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.save-paycheck-image:hover {
+    background-color: var(--primary-color);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.save-paycheck-image img {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.save-paycheck-image:hover img {
+    transform: rotate(-15deg);
+}
+
+.paycheck-separator .info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 20px;
+}
+
+@media screen and (max-width: 850px) {
+    .paycheck-actions {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .save-paycheck-image,
+    .delete-paycheck {
+        height: 28px;
+        width: 28px;
+        min-width: 28px;
+        padding: 4px;
+    }
+    
+    .save-paycheck-image img,
+    .delete-paycheck img {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+#language-selector {
+    display: flex;
+    gap: 2px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.lang-btn {
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    height: auto;
+    min-width: 40px;
+    border-radius: 0;
+    transition: background-color 0.2s;
+}
+
+.lang-btn:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.lang-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+body.dark-mode .lang-btn {
+    color: #fff;
+}
+
+body.dark-mode .lang-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .lang-btn.active {
+    background-color: var(--primary-color);
+}
+
+@media screen and (max-width: 850px) {
+    #language-selector {
+        order: -1;
+        margin-right: auto;
+    }
 }
 
 .modal {

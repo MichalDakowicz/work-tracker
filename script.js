@@ -54,10 +54,129 @@ const paycheckMinutesInput = document.querySelector("#paycheck-minutes");
 
 let currentRanges = [];
 
+let currentLanguage = localStorage.getItem("language") || "en";
+
+const translations = {
+    en: {
+        "darkMode": "Dark Mode",
+        "exportData": "Export Data",
+        "importData": "Import Data",
+        
+        "totalTime": "Total Time",
+        "sincePaycheck": "Since Paycheck",
+        "addRange": "Add Range",
+        "add": "Add",
+        "update": "Update",
+        "cancelEdit": "Cancel Edit",
+        "addPaycheck": "Add paycheck",
+        "paycheck": "Paycheck",
+        
+        "day": "Day",
+        "month": "Month",
+        "year": "Year",
+        "to": "to",
+        
+        "deleteDay": "Delete this day record?",
+        "deletePaycheck": "Delete this paycheck record?",
+        "yes": "Yes",
+        "no": "No",
+        
+        "at": "at",
+        "periodTotal": "Period total",
+        "paycheckReport": "Paycheck Report",
+        "workDaysInPeriod": "Work Days in this Period:",
+        "noWorkDays": "No work days recorded in this period."
+    },
+    pl: {
+        "darkMode": "Tryb ciemny",
+        "exportData": "Eksport danych",
+        "importData": "Import danych",
+        
+        "totalTime": "Całkowity czas",
+        "sincePaycheck": "Od wypłaty",
+        "addRange": "Dodaj zakres",
+        "add": "Dodaj",
+        "update": "Aktualizuj",
+        "cancelEdit": "Anuluj edycję",
+        "addPaycheck": "Dodaj wypłatę",
+        "paycheck": "Wypłata",
+        
+        "day": "Dzień",
+        "month": "Miesiąc",
+        "year": "Rok",
+        "to": "do",
+        
+        "deleteDay": "Usunąć ten dzień pracy?",
+        "deletePaycheck": "Usunąć tę wypłatę?",
+        "yes": "Tak",
+        "no": "Nie",
+        
+        "at": "o",
+        "periodTotal": "Suma okresu",
+        "paycheckReport": "Raport wypłaty",
+        "workDaysInPeriod": "Dni pracy w tym okresie:",
+        "noWorkDays": "Brak dni pracy w tym okresie."
+    }
+};
+
+function t(key) {
+    return translations[currentLanguage][key] || key;
+}
+
+function setLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem("language", lang);
+    
+    document.getElementById("dark-mode-label").textContent = t("darkMode");
+    document.getElementById("export-data").innerHTML = `<img src="img/export.svg" alt="Export" />${t("exportData")}`;
+    document.getElementById("import-trigger").innerHTML = `<img src="img/import.svg" alt="Import" />${t("importData")}`;
+    
+    document.getElementById("add-range").innerHTML = `<img src="img/add.svg" />${t("addRange")}`;
+    
+    const addDayBtn = document.getElementById("add-day-button");
+    addDayBtn.innerHTML = `<img src="img/add.svg" />${addDayBtn.textContent.includes("Update") ? t("update") : t("add")}`;
+    
+    const cancelEditBtn = document.getElementById("cancel-edit-button");
+    if (cancelEditBtn) {
+        cancelEditBtn.textContent = t("cancelEdit");
+    }
+    
+    document.getElementById("add-paycheck-button").innerHTML = `<img src="img/add.svg" />${t("addPaycheck")}`;
+    
+    dayInput.placeholder = t("day");
+    monthInput.placeholder = t("month");
+    yearInput.placeholder = t("year");
+    paycheckDayInput.placeholder = t("day");
+    paycheckMonthInput.placeholder = t("month");
+    paycheckYearInput.placeholder = t("year");
+    
+    document.querySelectorAll(".time-pair span").forEach(span => {
+        if (span.textContent.toLowerCase() === "to" || span.textContent.toLowerCase() === "do") {
+            span.textContent = t("to");
+        }
+    });
+    
+    document.getElementById("confirm-yes").textContent = t("yes");
+    document.getElementById("confirm-no").textContent = t("no");
+    
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.id === `lang-${lang}`);
+    });
+    
+    updateDisplay();
+}
+
 function formatTime(totalMinutes) {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    return `${hours}h ${minutes}m`;
+    
+    if (currentLanguage === "pl") {
+        const hourLabel = hours === 1 ? "godz" : "godz";
+        const minuteLabel = minutes === 1 ? "min" : "min";
+        return `${hours}${hourLabel} ${minutes}${minuteLabel}`;
+    } else {
+        return `${hours}h ${minutes}m`;
+    }
 }
 
 function saveToLocalStorage() {
@@ -162,10 +281,10 @@ function getEventDateTime(ev) {
 
 function updateDisplay() {
     const totalMinutes = calculateTotalTime(workDays);
-    totalTimeElement.textContent = `Total Time: ${formatTime(totalMinutes)}`;
+    totalTimeElement.textContent = `${t("totalTime")}: ${formatTime(totalMinutes)}`;
 
     const minutesFromLastPaycheck = calculateTimeFromLastPaycheck();
-    timeFromLastPaycheck.textContent = `Since Paycheck: ${formatTime(
+    timeFromLastPaycheck.textContent = `${t("sincePaycheck")}: ${formatTime(
         minutesFromLastPaycheck
     )}`;
 
@@ -223,18 +342,25 @@ function updateDisplay() {
             separator.className = "paycheck-separator";
             separator.innerHTML = `
                     <div class="info">
-                        <span class="date">💰 Paycheck ${formatDisplayDate(
+                        <span class="date">💰 ${t("paycheck")} ${formatDisplayDate(
                             ev.date
-                        )} at ${ev.time}</span>
-                        <span class="total">Period total: ${formatTime(
+                        )} ${t("at")} ${ev.time}</span>
+                        <span class="total">${t("periodTotal")}: ${formatTime(
                             periodMinutes
                         )}</span>
                     </div>
-                    <button onclick="deletePaycheck('${
-                        ev.fullDate
-                    }')" class="delete-paycheck" title="Delete paycheck">
-                        <img src="img/delete.svg" alt="Delete" />
-                    </button>
+                    <div class="paycheck-actions">
+                        <button onclick="savePaycheckAsImage('${
+                            ev.fullDate
+                        }')" class="save-paycheck-image" title="${currentLanguage === 'pl' ? 'Zapisz jako obrazek' : 'Save as image'}">
+                            <img src="img/save.svg" alt="${currentLanguage === 'pl' ? 'Zapisz jako obrazek' : 'Save as image'}" />
+                        </button>
+                        <button onclick="deletePaycheck('${
+                            ev.fullDate
+                        }')" class="delete-paycheck" title="${currentLanguage === 'pl' ? 'Usuń wypłatę' : 'Delete paycheck'}">
+                            <img src="img/delete.svg" alt="${currentLanguage === 'pl' ? 'Usuń' : 'Delete'}" />
+                        </button>
+                    </div>
                 `;
             dayList.appendChild(separator);
             lastPaycheckDate = paycheckDateTime;
@@ -267,11 +393,11 @@ function editDay(date) {
         dayInput.value = parts[2];
         currentRanges = record.timeRanges.split(", ").filter(Boolean);
         updateRangesList();
-        addDayButton.textContent = "Update";
+        addDayButton.textContent = t("update");
         if (!document.getElementById("cancel-edit-button")) {
             const cancelBtn = document.createElement("button");
             cancelBtn.id = "cancel-edit-button";
-            cancelBtn.textContent = "Cancel Edit";
+            cancelBtn.textContent = t("cancelEdit");
             cancelBtn.addEventListener("click", cancelEdit);
             addDayButton.parentNode.appendChild(cancelBtn);
         }
@@ -289,7 +415,7 @@ function cancelEdit() {
     yearInput.value = "";
     currentRanges = [];
     updateRangesList();
-    addDayButton.textContent = "Add";
+    addDayButton.textContent = t("add");
     const cancelBtn = document.getElementById("cancel-edit-button");
     if (cancelBtn) {
         cancelBtn.remove();
@@ -484,6 +610,9 @@ function showConfirmModal(message, onConfirm) {
     const noBtn = document.getElementById("confirm-no");
 
     msgEl.textContent = message;
+    yesBtn.textContent = t("yes");
+    noBtn.textContent = t("no");
+    
     modal.style.display = "flex";
 
     function modalClickHandler(e) {
@@ -514,7 +643,7 @@ function showConfirmModal(message, onConfirm) {
 }
 
 function deleteDay(date) {
-    showConfirmModal("Delete this day record?", function () {
+    showConfirmModal(t("deleteDay"), function () {
         workDays = workDays.filter((day) => day.date !== date);
         saveToLocalStorage();
         updateDisplay();
@@ -526,7 +655,7 @@ function deleteDay(date) {
 }
 
 function deletePaycheck(date) {
-    showConfirmModal("Delete this paycheck record?", function () {
+    showConfirmModal(t("deletePaycheck"), function () {
         paychecks = paychecks.filter((p) => p !== date);
         saveToLocalStorage();
         updateDisplay();
@@ -724,12 +853,137 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const exportBtn = document.getElementById("export-data");
-    if (exportBtn) {
-        exportBtn.addEventListener("click", exportData);
-    }
-});
+function loadHtml2Canvas() {
+    return new Promise((resolve, reject) => {
+        if (window.html2canvas) {
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Failed to load html2canvas library'));
+        document.head.appendChild(script);
+    });
+}
+
+function savePaycheckAsImage(paycheckDate) {
+    loadHtml2Canvas().then(() => {
+        const paycheckObj = paychecks.find(p => p === paycheckDate);
+        if (!paycheckObj) return;
+        
+        const paycheckIndex = paychecks.indexOf(paycheckObj);
+        const previousPaycheck = paycheckIndex > 0 ? paychecks[paycheckIndex - 1] : null;
+        
+        const paycheckDateTime = new Date(paycheckDate);
+        const previousPaycheckDateTime = previousPaycheck ? new Date(previousPaycheck) : null;
+        
+        const container = document.createElement('div');
+        container.style.width = '800px';
+        container.style.padding = '20px';
+        container.style.backgroundColor = body.classList.contains('dark-mode') ? '#333' : '#fff';
+        container.style.color = body.classList.contains('dark-mode') ? '#fff' : '#333';
+        container.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.borderRadius = '8px';
+        container.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+        
+        const header = document.createElement('h2');
+        const [date, time] = paycheckDate.split('T');
+        header.textContent = `${formatDisplayDate(date)} ${t("at")} ${time}`;
+        header.style.marginBottom = '20px';
+        header.style.marginBlockStart = '0';
+        header.style.fontFamily = '"Nunito Sans", sans-serif';
+        container.appendChild(header);
+        
+        const periodMinutes = calculateTimeForPeriod(previousPaycheckDateTime, paycheckDateTime);
+        
+        const periodInfo = document.createElement('div');
+        periodInfo.textContent = `${t("periodTotal")}: ${formatTime(periodMinutes)}`;
+        periodInfo.style.fontFamily = '"Roboto Mono", monospace';
+        periodInfo.style.fontSize = '1.2rem';
+        periodInfo.style.padding = '10px';
+        periodInfo.style.marginBottom = '20px';
+        periodInfo.style.background = body.classList.contains('dark-mode') ? '#444' : '#f0f0f0';
+        periodInfo.style.borderRadius = '4px';
+        periodInfo.style.border = '1px solid ' + (body.classList.contains('dark-mode') ? '#555' : '#ddd');
+        container.appendChild(periodInfo);
+        
+        const daysTitle = document.createElement('h3');
+        daysTitle.style.marginBottom = '15px';
+        daysTitle.style.fontFamily = '"Nunito Sans", sans-serif';
+        container.appendChild(daysTitle);
+        
+        const daysList = document.createElement('div');
+        daysList.style.display = 'flex';
+        daysList.style.flexDirection = 'column';
+        daysList.style.gap = '10px';
+        
+        const sortedWorkDays = [...workDays].sort((a, b) => {
+            return new Date(a.date) - new Date(b.date);
+        });
+        
+        const periodDays = sortedWorkDays.filter(day => {
+            const workDate = new Date(day.date);
+            return (!previousPaycheckDateTime || workDate > previousPaycheckDateTime) && 
+                   workDate <= paycheckDateTime;
+        });
+        
+        if (periodDays.length === 0) {
+            const noData = document.createElement('p');
+            noData.textContent = t("noWorkDays");
+            noData.style.fontStyle = 'italic';
+            noData.style.opacity = '0.7';
+            daysList.appendChild(noData);
+        } else {
+            for (const day of periodDays) {
+                const dayEl = document.createElement('div');
+                dayEl.style.padding = '10px 15px';
+                dayEl.style.border = '1px solid ' + (body.classList.contains('dark-mode') ? '#555' : '#ddd');
+                dayEl.style.borderRadius = '6px';
+                dayEl.style.background = body.classList.contains('dark-mode') ? '#444' : '#fff';
+                
+                const timeRangesHtml = day.timeRanges ? 
+                    `<div style="font-family: 'Roboto Mono', monospace; font-size: 0.9em; margin-top: 5px; opacity: 0.7;">${day.timeRanges}</div>` : '';
+                    
+                dayEl.innerHTML = `
+                    <div style="font-family: 'Roboto Mono', monospace;">
+                        ${formatDisplayDate(day.date)}: ${day.hours}h ${day.minutes}m
+                        ${timeRangesHtml}
+                    </div>
+                `;
+                
+                daysList.appendChild(dayEl);
+            }
+        }
+        
+        container.appendChild(daysList);
+        document.body.appendChild(container);
+        
+        html2canvas(container, {
+            backgroundColor: body.classList.contains('dark-mode') ? '#333' : '#fff'
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `paycheck-${date.replace(/-/g, '')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            document.body.removeChild(container);
+        }).catch(error => {
+            console.error("Error generating canvas:", error);
+            alert("Failed to generate image: " + error.message);
+            document.body.removeChild(container);
+        });
+    }).catch(error => {
+        alert(currentLanguage === 'pl' ? 
+              'Nie udało się załadować biblioteki html2canvas: ' + error.message : 
+              'Failed to load html2canvas library: ' + error.message);
+    });
+}
+
+window.savePaycheckAsImage = savePaycheckAsImage;
 
 function importData(event) {
     const file = event.target.files[0];
@@ -754,6 +1008,11 @@ function importData(event) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const exportBtn = document.getElementById("export-data");
+    if (exportBtn) {
+        exportBtn.addEventListener("click", exportData);
+    }
+    
     const importInput = document.getElementById("import-data");
     if (importInput) {
         importInput.addEventListener("change", importData);
@@ -764,6 +1023,16 @@ document.addEventListener("DOMContentLoaded", () => {
             importInput.click();
         });
     }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const langEnBtn = document.getElementById("lang-en");
+    const langPlBtn = document.getElementById("lang-pl");
+    
+    langEnBtn.addEventListener("click", () => setLanguage("en"));
+    langPlBtn.addEventListener("click", () => setLanguage("pl"));
+    
+    setLanguage(currentLanguage);
 });
 
 updateDisplay();
